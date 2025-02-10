@@ -1,0 +1,13 @@
+# Игнорировать папку Code
+Code/
+
+# Игнорировать папку Connected Services
+Connected Services/
+
+# Игнорировать папку obj
+obj/
+
+# Игнорировать папку Properties
+Properties/
+
+packages/

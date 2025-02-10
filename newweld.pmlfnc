@@ -1,0 +1,131 @@
+﻿define function !!newweld(!d is string, !ref is dbref)
+    !connectionList = 'BWD SWN SWF SOW'
+    -- !ref = !item.dbref()    
+    !brans = array()
+    ----------------------------------------------------------------------------
+    --BRAN
+    ----------------------------------------------------------------------------
+    if !ref.type.eq('BRAN') then
+        $!ref
+        -- Голова 
+        !hconn = !ref.hconn
+        if ( !ref.mcount.eq(0) and !connectionList.matchwild('*$!hconn*') and !hconn neq '' ) then
+            !conn = !ref.phcon
+            if ( !connectionList.matchwild('*$!conn*') or !conn neq '' )  then  $* check connection type is BWD type
+                !bore  = !ref.hbore
+                !mode = 'FORWARD'
+                !position = !ref.hpos.string()
+                NEW WELD before
+                POS $!position
+                choose with pbore0 $!bore STYPE 'WSBW' SHOP FALSE ALLO FALSE
+                sel lstu
+                oriflag true
+                posflag true
+                ori
+            endif            
+        endif
+        -- Хвост
+        !tconn = !ref.tconn
+        if ( !ref.mcount.eq(0) and !connectionList.matchwild('*$!tconn*') and !tconn neq '' ) then
+            !pl = !ref.ptcon
+            !conn = !ref.ptcon
+            if ( !connectionList.matchwild('*$!conn*') or !conn neq '' )  then  $* check connection type is BWD type
+                !bore  = !ref.tbore
+                !mode = 'BACKWARD'
+                !position = !ref.tpos.string()
+                NEW WELD after
+                POS $!position
+                choose with pbore0 $!bore STYPE 'WSBW' SHOP FALSE ALLO FALSE
+                sel lstu
+                oriflag true
+                posflag true
+                ori
+            endif
+        endif
+        !brans.append(!ref)
+    endif
+    -------------------------------------------------------------------------------
+    --Элементы MEMB OF BRAN
+    -------------------------------------------------------------------------------
+    !membs = object collection()
+    !membs.scope(!brans)
+    !types[1] = 'TEE'
+    !types[2] = 'ELBO'
+    !types[3] = 'FLAN'
+    !types[4] = 'OLET'
+    !types[5] = 'REDU'
+    -- OLET LEAVE 3 ставим
+    !membs.types(!types)
+    !branmem = !membs.Results()
+    do !mem values !branmem
+        !allWelds  = object array()
+        !positions = object array()
+        --Расставляем WELD по точкам входа и выхода  
+        do !point from 1 to !mem.Ppcou
+            $!mem
+            !conn = !mem.ppco[!point] $* check if point has connection
+            handle any
+            skip
+            endhandle
+            if ( !connectionList.matchwild('*$!conn*').not() or !conn eq '' ) then  $* check connection type is BWD type
+                skip
+            endif
+            !position  = !mem.ppos[!point].wrt(world).string()
+            !pbore = !mem.ppbo[!point].real().NearestBore().Real()
+            -- Точка входа
+            if ( !mem.arrive eq !point ) then
+                !mode = 'FORWARD'
+                NEW WELD before
+                POS $!position
+                choose with pbore0 $!pbore STYPE 'WSBW' SHOP FALSE ALLO FALSE
+                sel lstu
+                oriflag true
+                posflag true
+                ori       
+            endif
+            --Проверка расстановки элементов друг за другом на расстоянии =0
+            if !mem.seq.neq(mcount of bran) then 
+                var !dn const dist pl to pa of next
+                if !dn.real().eq(0) then
+                    skip
+                endif
+            endif
+            -- Точка выхода
+            if ( !mem.leave eq !point ) then
+                !mode = 'BACKWARD'
+                NEW WELD after   
+                POS $!position
+                choose with pbore0 $!pbore STYPE 'WSBW' SHOP FALSE ALLO FALSE
+                sel lstu
+                oriflag true
+                posflag true
+                ori                    
+            endif             
+        enddo        
+    enddo
+    -------------------------------------------------------------------------------
+    --TUBI
+    -------------------------------------------------------------------------------
+    if !d.neq('') then
+        !dist = !d.real()
+        !bore = !ref.Abore
+        if !dist.leq(0) then
+            NEW WELD before
+			choose with pbore0 $!bore STYPE 'WSBW' SHOP FALSE ALLO FALSE        
+			sel lstu
+			oriflag true
+			posflag true
+			ori
+			pos pl dist $!dist from pa of next
+        endif
+        if !dist.gt(0) then 
+            NEW WELD after
+			choose with pbore0 $!bore STYPE 'WSBW' SHOP FALSE ALLO FALSE        
+			sel lstu
+			oriflag true
+			posflag true
+			ori
+			pos pa dist $!dist from pl of prev
+        endif
+    endif
+endfunction

@@ -1,0 +1,13 @@
+﻿define function !!KOSTIL(!i is string) is string 
+    !ref = !i.dbref()
+    $!i
+    NEW COUP before
+    choose with SHOP TRUE
+    sel lstu
+    oriflag true
+    posflag true
+    ori
+    var !dist CONS DIST PA to PL
+	DELETE COUP
+    return !dist
+endfunction

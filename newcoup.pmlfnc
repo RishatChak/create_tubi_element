@@ -1,0 +1,13 @@
+﻿define function !!newcoup(!d is string, !ref is dbref)
+    -- !ref = !item.dbref()
+    !dist = !d.real()
+    NEW COUP before
+    choose with SHOP TRUE
+    sel lstu
+    oriflag true
+    posflag true
+    ori
+    -- var !distp const dist pa to pl 
+    -- !dist = !dist - !distp.real()
+    pos pa dist $!dist from pa of next
+endfunction

@@ -1,0 +1,10 @@
+﻿define function !!POSTPOS(!i is string) is string
+    !ref = !i.dbref()
+    $!ref
+	var !pos pos
+	var !tpos tpos of owner
+	if !pos.neq(!tpos) then
+		var !dist const dist pl to $!tpos
+	endif
+    return !dist
+endfunction

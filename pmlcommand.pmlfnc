@@ -1,0 +1,4 @@
+﻿define function !!pmlcommand(!command is string) is string
+	var !pml $!command
+	return !pml
+endfunction
